@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Display a map</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+    <style>
+      #features {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: auto;
+        overflow: auto;
+        margin: 15px;
+        background: rgba(255, 255, 255, 0.8);
+      }
+      #map canvas {
+        cursor: crosshair;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <span id="features">
+      <p>Changes to these parameters take effect as soon as mapbox fetches more tiles. To force the changes into effect immediately, click the reset button.</p>
+
+      <form id="tile-params">
+        <label for="tile-size-select">Tile Size:</label>
+        <select id="tile-size-select" onchange="setSourceDeetz(this.value, undefined)">
+          <option value="64">64 Pixels</option>
+          <option value="128">128 Pixels</option>
+          <option value="256" selected="1">256 Pixels</option>
+          <option value="512">512 Pixels</option>
+        </select>
+        <br>
+        <!-- <input id="tile-size" type="text" width="8" placeholder="256">Tile Size -->
+        <label>Tile Format:</label>
+        <input type="radio" name="compression" checked="1" onclick="setSourceDeetz(undefined, '')" >JPEG/PNG
+        <input type="radio" name="compression" onclick="setSourceDeetz(undefined, '.png')">Only PNG
+        <input type="radio" name="compression" onclick="setSourceDeetz(undefined, '.webp')">WebP
+
+        <br>
+        <input type="button" value="Reset" onclick="reloadLayers()">
+      </form>
+    </span>
+    <script>
+      const sect2 = '354249d6-fa56-467a-aa1c-353d02c87669';
+      const fpmc_site_plan = '0491716e-a465-4910-b27f-6511e7166f61';
+      const fpmc = '2491716e-a465-4910-b27f-6511e7166f61';
+      const active = fpmc;
+      // TO MAKE THE MAP APPEAR YOU MUST
+      // ADD YOUR ACCESS TOKEN FROM
+      // https://account.mapbox.com
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoicHJvamVjdGF0bGFzIiwiYSI6ImNqZ25wZ2JtbjBqYWoycXIxZTQ1cmZvOGQifQ.lOIDJAADqZ8SNXUobycfiQ";
+      var map = new mapboxgl.Map({
+        container: "map", // container id
+        style: "mapbox://styles/mapbox/streets-v11", // stylesheet location
+        center: {lng: -98.58755063390788, lat: 29.583060079017045}, // starting position [lng, lat]
+        zoom: 15, // starting zoom
+      });
+
+      const GeometryIsVisible = ["!=", ["get", "visibility"], "0"];
+      const GeometryIsPolygonLike = ["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]];
+      const GeometryIsPoint = ["==", ["geometry-type"], "Point"];
+      const FeatureHasName = ["has", "name"];
+      const FeatureHasFill = ["has", "fill"];
+      
+      const getUrl = () =>
+        `https://d1hkmcz4zabnyf.cloudfront.net/cogs/${active}/512/{z}/{x}/{y}`;
+
+      const sourceDeetz = {};
+      const hntb = "https%3A%2F%2Fbluebeam-dev-acr-d-xx-mapresources-ue1.s3.amazonaws.com%2FGeoTIFF_Cloud_Optimized%2FHNTB_I35%2FSection2.tif";
+
+      // const updateSliderValues = () => {
+      //   const ext = document.querySelector('input[name="compression"]:checked').value;
+      //   const tilesize = document.querySelector('input[id="tile-size-slider"]').value;
+
+      //   console.log('setting ' + tilesize + ' and ' + ext);
+      //   setSourceDeetz(tilesize, ext);
+      // }
+
+      function setSourceDeetz(tilesize, ext) {
+        if (typeof tilesize !== "undefined") sourceDeetz.tileSize = tilesize;
+        if (typeof ext !== "undefined") sourceDeetz.ext = ext;
+
+        const source = map.getSource("some id");
+        // if (source) source.tiles = [`https://mn68twonr4.execute-api.us-east-1.amazonaws.com/cache/${sourceDeetz.tileSize}/{z}/{x}/{y}${sourceDeetz.ext}?url=${hntb}`];
+        if (source) source.tiles = [getUrl()];
+      }
+
+      function reloadLayers() {
+        const layer = map.getLayer("no");
+        const source = map.getSource("some id");
+
+        if (layer) map.removeLayer("no");
+        if (source) map.removeSource("some id");
+
+        if (typeof tilesize !== "undefined") sourceDeetz.tileSize = tilesize;
+        if (typeof ext !== "undefined") sourceDeetz.ext = ext;
+
+        map.addSource("some id", {
+          type: "raster",
+          tiles: [
+            // `https://mn68twonr4.execute-api.us-east-1.amazonaws.com/cache/${sourceDeetz.tileSize}/{z}/{x}/{y}${sourceDeetz.ext}?url=${hntb}`
+            getUrl()
+          ],
+        });
+
+        map.addLayer({
+          id: "no",
+          type: "raster",
+          source: "some id",
+          minZoom: 10,
+          maxZoom: 22,
+        });
+      }
+
+      map.on('load', () => {
+        // setSourceDeetz(256, '');
+        reloadLayers();
+      });
+    </script>
+  </body>
+</html>
