@@ -43,31 +43,51 @@
   <body>
     <div id="map"></div>
     <span id="features">
-      <p>Changes to these parameters take effect as soon as mapbox fetches more tiles. To force the changes into effect immediately, click the reset button.</p>
+      <p>
+        Changes to these parameters take effect as soon as mapbox fetches more
+        tiles. To force the changes into effect immediately, click the reset
+        button.
+      </p>
 
       <form id="tile-params">
         <label for="tile-size-select">Tile Size:</label>
-        <select id="tile-size-select" onchange="setSourceDeetz(this.value, undefined)">
+        <select
+          id="tile-size-select"
+          onchange="setSourceDeetz(this.value, undefined)"
+        >
           <option value="64">64 Pixels</option>
           <option value="128">128 Pixels</option>
           <option value="256" selected="1">256 Pixels</option>
           <option value="512">512 Pixels</option>
         </select>
-        <br>
+        <br />
         <!-- <input id="tile-size" type="text" width="8" placeholder="256">Tile Size -->
         <label>Tile Format:</label>
-        <input type="radio" name="compression" checked="1" onclick="setSourceDeetz(undefined, '')" >JPEG/PNG
-        <input type="radio" name="compression" onclick="setSourceDeetz(undefined, '.png')">Only PNG
-        <input type="radio" name="compression" onclick="setSourceDeetz(undefined, '.webp')">WebP
+        <input
+          type="radio"
+          name="compression"
+          checked="1"
+          onclick="setSourceDeetz(undefined, '')"
+        />JPEG/PNG
+        <input
+          type="radio"
+          name="compression"
+          onclick="setSourceDeetz(undefined, '.png')"
+        />Only PNG
+        <input
+          type="radio"
+          name="compression"
+          onclick="setSourceDeetz(undefined, '.webp')"
+        />WebP
 
-        <br>
-        <input type="button" value="Reset" onclick="reloadLayers()">
+        <br />
+        <input type="button" value="Reset" onclick="reloadLayers()" />
       </form>
     </span>
     <script>
-      const sect2 = '354249d6-fa56-467a-aa1c-353d02c87669';
-      const fpmc_site_plan = '0491716e-a465-4910-b27f-6511e7166f61';
-      const fpmc = '2491716e-a465-4910-b27f-6511e7166f61';
+      const sect2 = "354249d6-fa56-467a-aa1c-353d02c87669";
+      const fpmc_site_plan = "0491716e-a465-4910-b27f-6511e7166f61";
+      const fpmc = "2491716e-a465-4910-b27f-6511e7166f61";
       const active = fpmc;
       // TO MAKE THE MAP APPEAR YOU MUST
       // ADD YOUR ACCESS TOKEN FROM
@@ -77,21 +97,26 @@
       var map = new mapboxgl.Map({
         container: "map", // container id
         style: "mapbox://styles/mapbox/streets-v11", // stylesheet location
-        center: {lng: -98.58755063390788, lat: 29.583060079017045}, // starting position [lng, lat]
+        center: { lng: -98.58755063390788, lat: 29.583060079017045 }, // starting position [lng, lat]
         zoom: 15, // starting zoom
       });
 
       const GeometryIsVisible = ["!=", ["get", "visibility"], "0"];
-      const GeometryIsPolygonLike = ["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]];
+      const GeometryIsPolygonLike = [
+        "in",
+        ["geometry-type"],
+        ["literal", ["Polygon", "MultiPolygon"]],
+      ];
       const GeometryIsPoint = ["==", ["geometry-type"], "Point"];
       const FeatureHasName = ["has", "name"];
       const FeatureHasFill = ["has", "fill"];
-      
+
       const getUrl = () =>
         `https://d1hkmcz4zabnyf.cloudfront.net/cogs/${active}/512/{z}/{x}/{y}`;
 
       const sourceDeetz = {};
-      const hntb = "https%3A%2F%2Fbluebeam-dev-acr-d-xx-mapresources-ue1.s3.amazonaws.com%2FGeoTIFF_Cloud_Optimized%2FHNTB_I35%2FSection2.tif";
+      const hntb =
+        "https%3A%2F%2Fbluebeam-dev-acr-d-xx-mapresources-ue1.s3.amazonaws.com%2FGeoTIFF_Cloud_Optimized%2FHNTB_I35%2FSection2.tif";
 
       // const updateSliderValues = () => {
       //   const ext = document.querySelector('input[name="compression"]:checked').value;
@@ -124,7 +149,7 @@
           type: "raster",
           tiles: [
             // `https://mn68twonr4.execute-api.us-east-1.amazonaws.com/cache/${sourceDeetz.tileSize}/{z}/{x}/{y}${sourceDeetz.ext}?url=${hntb}`
-            getUrl()
+            getUrl(),
           ],
         });
 
@@ -137,7 +162,7 @@
         });
       }
 
-      map.on('load', () => {
+      map.on("load", () => {
         // setSourceDeetz(256, '');
         reloadLayers();
       });
