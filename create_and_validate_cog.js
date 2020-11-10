@@ -8,7 +8,7 @@ const height = 12000;
 const bounds = calibrationConfigs.sitePlan.cornerPoints;
 
 const cmd = `
-gdal_translate -of GTiff -a_srs EPSG:4326 \
+gdal_translate -of GTiff -ot Byte -scale -a_srs EPSG:4326 \
   -gcp 0 0 ${bounds[0].lng} ${bounds[0].lat} \
   -gcp ${width} 0 ${bounds[1].lng} ${bounds[1].lat} \
   -gcp ${width} ${height} ${bounds[2].lng} ${bounds[2].lat} \
